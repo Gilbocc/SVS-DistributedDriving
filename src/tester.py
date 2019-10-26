@@ -79,4 +79,4 @@ def __start_evaluation(model_path):
         time.sleep(0.1)
 
 if __name__ == "__main__":
-    start_evaluation(sys.argv[0])
+    __start_evaluation(sys.argv[0])
