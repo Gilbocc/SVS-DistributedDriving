@@ -56,7 +56,7 @@ To start the coordinator agent use the following command (parameters must be rep
 
 Example:
 
-    python .\manage.py runserver 0.0.0.0:7777 data_dir='C:\\Users\\peppe_000\\Documents\\MyProjects\\SmartVehicularSystems\\DistributedRL\\data' role=trainer experiment_name='experiment_1' batch_update_frequency=1 weights_path='C:\\Users\\peppe_000\\Documents\\MyProjects\\SmartVehicularSystems\\DistributedRL\\data\\pretrain_model_weights.h5' train_conv_layers='false' per_iter_epsilon_reduction=0.003 min_epsilon=0.1
+    python .\manage.py runserver 0.0.0.0:7777 data_dir='C:\\Users\\peppe_000\\Documents\\MyProjects\\SmartVehicularSystems\\DistributedRL\\data' role=trainer experiment_name='experiment_2' batch_update_frequency=5 weights_path='C:\\Users\\peppe_000\\Documents\\MyProjects\\SmartVehicularSystems\\DistributedRL\\data\\pretrain_model_weights.h5' train_conv_layers='false' per_iter_epsilon_reduction=0.003 min_epsilon=0.1
 
 ## WORKER NODE
 
@@ -66,7 +66,7 @@ To start a node agent use the following command (parameters must be replaced)
 
 Example:
 
-    python .\distributed_agent.py data_dir='C:\\Users\\peppe_000\\Documents\\MyProjects\\SmartVehicularSystems\\DistributedRL\\data' role=agent max_epoch_runtime_sec=30 per_iter_epsilon_reduction=0.003 min_epsilon=0.1 batch_size=32 replay_memory_size=32 experiment_name='experiment_1' weights_path='C:\\Users\\peppe_000\\Documents\\MyProjects\\SmartVehicularSystems\\DistributedRL\\data\\pretrain_model_weights.h5' train_conv_layers='false' airsim_path='D:\\AirSim\\AD_Cookbook_AirSim' airsim_simulation_name='neighborhood'
+    python .\distributed_agent.py data_dir='C:\\Users\\peppe_000\\Documents\\MyProjects\\SmartVehicularSystems\\DistributedRL\\data' role=agent max_epoch_runtime_sec=30 per_iter_epsilon_reduction=0.003 min_epsilon=0.1 batch_size=32 replay_memory_size=100 experiment_name='experiment_2' weights_path='C:\\Users\\peppe_000\\Documents\\MyProjects\\SmartVehicularSystems\\DistributedRL\\data\\pretrain_model_weights.h5' train_conv_layers='false' airsim_path='D:\\AirSim\\AD_Cookbook_AirSim' airsim_simulation_name='neighborhood'
 
 ## PARAMETERS
 

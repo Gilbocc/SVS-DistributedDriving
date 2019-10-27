@@ -14,6 +14,7 @@ import requests
 import PIL
 import copy
 import datetime
+import json
 
 # A class that represents the agent that will drive the vehicle, train the model, and send the gradient updates to the trainer.
 class DistributedAgent():
@@ -97,7 +98,7 @@ class DistributedAgent():
             #             break
             #     print('Not online yet. Sleeping...')
             #     time.sleep(5)
-            self.__possible_ip_addresses.append('192.168.1.5'.replace('\n', ''))
+            self.__possible_ip_addresses.append('192.168.1.4'.replace('\n', ''))
         
             # We now have the IP address for the trainer. Attempt to ping the trainer.
             ping_idx = -1
@@ -189,7 +190,7 @@ class DistributedAgent():
         while True:
             try:
                 print('Attempting to connect to AirSim (attempt {0})'.format(attempt_count))
-                self.__car_client = CarClient()
+                self.__car_client = CarClient(ip="192.168.1.6")
                 self.__car_client.confirmConnection()
                 self.__car_client.enableApiControl(True)
                 self.__car_controls = CarControls()
@@ -482,7 +483,10 @@ class DistributedAgent():
         x_val_key = bytes('x_val', encoding='utf8')
         y_val_key = bytes('y_val', encoding='utf8')
 
-        car_point = np.array([car_state.kinematics_true[position_key][x_val_key], car_state.kinematics_true[position_key][y_val_key], 0])
+        try:
+            car_point = np.array([car_state.kinematics_true[position_key][x_val_key], car_state.kinematics_true[position_key][y_val_key], 0])
+        except:
+            car_point = np.array([car_state.position[x_val_key], car_state.position[y_val_key], 0])
         
         # Distance component is exponential distance to nearest line
         distance = 999
@@ -515,12 +519,12 @@ class DistributedAgent():
 
         # Points in road_points.txt are in unreal coordinates
         # But car start coordinates are not the same as unreal coordinates
-        for point_pair in self.__road_points:
-            for point in point_pair:
-                point[0] -= car_start_coords[0]
-                point[1] -= car_start_coords[1]
-                point[0] /= 100
-                point[1] /= 100
+        # for point_pair in self.__road_points:
+        #     for point in point_pair:
+        #         point[0] -= car_start_coords[0]
+        #         point[1] -= car_start_coords[1]
+        #         point[0] /= 100
+        #         point[1] /= 100
               
     # Initializes the points used for determining the optimal position of the vehicle during the reward function
     def __init_reward_points(self):
@@ -571,6 +575,10 @@ class DistributedAgent():
 
         # The z coordinate is always zero
         random_start_point[2] = -0
+        
+        # random_start_point = (random_line[1][0], random_line[1][1], 0)
+        random_direction = (0,0,-math.pi/8)
+        print('Start point ' + json.dumps(random_start_point))
         return (random_start_point, random_direction)
 
     # A helper function to make a directory if it does not exist
@@ -634,7 +642,7 @@ print('***')
 # else:
 #     os.system('START "" powershell.exe {0}'.format(os.path.join(parameters['airsim_path'], 'AD_Cookbook_Start_AirSim.ps1 neighborhood -windowed')))
 
-os.system('START "" powershell.exe {0} {1} -windowed'.format(os.path.join(parameters['airsim_path'], 'AD_Cookbook_Start_AirSim.ps1'), parameters['airsim_simulation_name']))
+# os.system('START "" powershell.exe {0} {1} -windowed'.format(os.path.join(parameters['airsim_path'], 'AD_Cookbook_Start_AirSim.ps1'), parameters['airsim_simulation_name']))
 
 # Start the training
 agent = DistributedAgent(parameters)

@@ -138,13 +138,23 @@ class CarControls(MsgpackMixin):
             manual_gear = -1
             throttle = - abs(throttle_val)
 
+class Kinematics(MsgpackMixin):
+    position = Vector3r()
+    linear_velocity = Vector3r()
+    angular_velocity = Vector3r()
+    linear_acceleration = Vector3r()
+    angular_acceleration = Vector3r()
+    orientation = Quaternionr()
+
 class CarState(MsgpackMixin):
     speed = np.float32(0)
     gear = 0
+    collision = CollisionInfo()
+    kinematics_true = Kinematics()
     position = Vector3r()
     velocity = Vector3r()
     orientation = Quaternionr()
-
+    
 class AirSimClientBase:
     def __init__(self, ip, port):
         self.client = msgpackrpc.Client(msgpackrpc.Address(ip, port), timeout = 5)

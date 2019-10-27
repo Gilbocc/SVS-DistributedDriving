@@ -1,5 +1,5 @@
-from app.airsim_client import *
-from app.rl_model import RlModel
+from trainer.airsim_client import *
+from trainer.rl_model import RlModel
 import numpy as np
 import time
 import sys
@@ -17,10 +17,9 @@ def __append_to_ring_buffer(item, buffer, buffer_size):
 # Helper function to connect to AirSim
 def __get_car_client():
     print('Connecting to AirSim...')
-    car_client = CarClient()
+    car_client = CarClient(ip="192.168.1.6")
     car_client.confirmConnection()
     car_client.enableApiControl(True)
-    car_controls = CarControls()
     print('Connected!')
     return car_client
 
@@ -33,16 +32,17 @@ def __get_image(car_client):
 
 # Helper function to load model from disk
 def __get_model(model_path):
-    model = RlModel(None, False)
-    with open(model_path, 'r') as f:
-        checkpoint_data = json.loads(f.read())
-        model.from_packet(checkpoint_data['model'])
+    model = RlModel(model_path, False)
+    # model = RlModel(None, False)
+    # with open(model_path, 'r') as f:
+    #     checkpoint_data = json.loads(f.read())
+    #     model.from_packet(checkpoint_data['model'])
     return model
 
 # Helper function to initialize the content of the car state buffer
 def __initialize_state_buffer(car_client, state_buffer, state_buffer_len):
     print('Running car for a few seconds...')
-    car_controls = {}
+    car_controls = CarControls()
     car_controls.steering = 0
     car_controls.throttle = 1
     car_controls.brake = 0
@@ -67,7 +67,7 @@ def __start_evaluation(model_path):
         next_state, dummy = model.predict_state(state_buffer)
         next_control_signal = model.state_to_control_signals(next_state, car_client.getCarState())
 
-        car_controls = {}
+        car_controls = CarControls()
         car_controls.steering = next_control_signal[0]
         car_controls.throttle = next_control_signal[1]
         car_controls.brake = next_control_signal[2]
@@ -79,4 +79,4 @@ def __start_evaluation(model_path):
         time.sleep(0.1)
 
 if __name__ == "__main__":
-    __start_evaluation(sys.argv[0])
+    __start_evaluation(sys.argv[1])
