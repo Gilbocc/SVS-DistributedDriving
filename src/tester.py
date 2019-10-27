@@ -31,12 +31,14 @@ def __get_image(car_client):
     return image_rgba[76:135,0:255,0:3].astype(float)
 
 # Helper function to load model from disk
-def __get_model(model_path):
-    model = RlModel(model_path, False)
-    # model = RlModel(None, False)
-    # with open(model_path, 'r') as f:
-    #     checkpoint_data = json.loads(f.read())
-    #     model.from_packet(checkpoint_data['model'])
+def __get_model(model_path, h5):
+    if (h5):
+        model = RlModel(model_path, False)
+    else:
+        model = RlModel(None, False)
+        with open(model_path, 'r') as f:
+            checkpoint_data = json.loads(f.read())
+            model.from_packet(checkpoint_data['model'])
     return model
 
 # Helper function to initialize the content of the car state buffer
@@ -53,12 +55,12 @@ def __initialize_state_buffer(car_client, state_buffer, state_buffer_len):
         __append_to_ring_buffer(__get_image(car_client), state_buffer, state_buffer_len)
 
 # Helper function to evaluate the given model sing the AirSim simulator
-def __start_evaluation(model_path):
+def __start_evaluation(model_path, h5):
 
     state_buffer = []
     state_buffer_len = 4
     car_client = __get_car_client()
-    model = __get_model(model_path)
+    model = __get_model(model_path, h5)
     __initialize_state_buffer(car_client, state_buffer, state_buffer_len)
 
     print('Running model')
@@ -79,4 +81,4 @@ def __start_evaluation(model_path):
         time.sleep(0.1)
 
 if __name__ == "__main__":
-    __start_evaluation(sys.argv[1])
+    __start_evaluation(sys.argv[1],  sys.argv[2] == 'True')

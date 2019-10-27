@@ -62,11 +62,11 @@ Example:
 
 To start a node agent use the following command (parameters must be replaced)
 
-    python src\app\distributed_agent.py data_dir={-1} role=agent max_epoch_runtime_sec={0} per_iter_epsilon_reduction={1:f} min_epsilon={2:f} batch_size={3} replay_memory_size={4} experiment_name={5} weights_path={6} train_conv_layers={7}
+    python src\app\distributed_agent.py data_dir={-1} role=agent max_epoch_runtime_sec={0} per_iter_epsilon_reduction={1:f} min_epsilon={2:f} batch_size={3} replay_memory_size={4} experiment_name={5} weights_path={6} train_conv_layers={7} 
 
 Example:
 
-    python .\distributed_agent.py data_dir='C:\\Users\\peppe_000\\Documents\\MyProjects\\SmartVehicularSystems\\DistributedRL\\data' role=agent max_epoch_runtime_sec=30 per_iter_epsilon_reduction=0.003 min_epsilon=0.1 batch_size=32 replay_memory_size=100 experiment_name='experiment_2' weights_path='C:\\Users\\peppe_000\\Documents\\MyProjects\\SmartVehicularSystems\\DistributedRL\\data\\pretrain_model_weights.h5' train_conv_layers='false' airsim_path='D:\\AirSim\\AD_Cookbook_AirSim' airsim_simulation_name='neighborhood'
+    python .\distributed_agent.py data_dir='C:\\Users\\peppe_000\\Documents\\MyProjects\\SmartVehicularSystems\\DistributedRL\\data' role=agent max_epoch_runtime_sec=30 per_iter_epsilon_reduction=0.003 min_epsilon=0.1 batch_size=32 replay_memory_size=100 experiment_name='experiment_2' weights_path='C:\\Users\\peppe_000\\Documents\\MyProjects\\SmartVehicularSystems\\DistributedRL\\data\\pretrain_model_weights.h5' train_conv_layers='false' airsim_path='D:\\AirSim\\AD_Cookbook_AirSim' airsim_simulation_name='neighborhood' coordinator_address='192.168.1.4:7777'
 
 ## PARAMETERS
 
