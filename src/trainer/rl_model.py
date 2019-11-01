@@ -26,8 +26,7 @@ K.set_session(session)
 # A wrapper class for the DQN model
 class RlModel():
     def __init__(self, weights_path, train_conv_layers):
-        self.__angle_values = [-1, -0.5, 0, 0.5, 1]
-
+        
         self.__nb_actions = 5
         self.__gamma = 0.99
 
@@ -174,7 +173,7 @@ class RlModel():
             for i in range(0, len(original_weights), 1):
                 gradients.append(new_weights[i] - original_weights[i])
                 dx += np.sum(np.sum(np.abs(new_weights[i]-original_weights[i])))
-            print('change in weights from training iteration: {0}'.format(dx))
+            print('Change in weights from training iteration: {0}'.format(dx))
         
         print('END GET GRADIENT UPDATE DEBUG')
 
@@ -196,14 +195,6 @@ class RlModel():
         # Select the action with the highest Q value
         predicted_state = np.argmax(predicted_qs)
         return (predicted_state, predicted_qs[0][predicted_state])
-
-    # Convert the current state to control signals to drive the car.
-    # As we are only predicting steering angle, we will use a simple controller to keep the car at a constant speed
-    def state_to_control_signals(self, state, car_state):
-        if car_state.speed > 9:
-            return (self.__angle_values[state], 0, 1)
-        else:
-            return (self.__angle_values[state], 1, 0)
 
     # Gets a random state
     # Used during annealing
