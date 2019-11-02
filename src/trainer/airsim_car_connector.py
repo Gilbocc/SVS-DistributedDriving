@@ -1,12 +1,13 @@
-from trainer.airsim_client import *
-from trainer.car_connector import CarConnector, ConnectorException, Vector3, CarInternalState
-from trainer.utils import *
+from airsim_client import *
+from car_connector import CarConnector, ConnectorException, Vector3, CarInternalState
+from utils import *
 import datetime
 import os
 import json
 import copy
 import numpy as np
 import msgpackrpc
+import time
 
 class AirSimCarConnector(CarConnector):
 
@@ -21,7 +22,7 @@ class AirSimCarConnector(CarConnector):
 
         self.__init_road_points()
 
-        os.system('START "" powershell.exe {0} {1} -windowed -ResX=640 -ResY=480'.format(
+        os.system('START "" powershell.exe {0} {1} -windowed'.format(
             os.path.join(self.__airsim_path, 'AD_Cookbook_Start_AirSim.ps1'), self.__simulation_name))
 
 
@@ -43,7 +44,7 @@ class AirSimCarConnector(CarConnector):
                 attempt_count += 1
                 if (attempt_count % 10 == 0):
                     print('10 consecutive failures to connect. Attempting to start AirSim on my own.')
-                    os.system('START "" powershell.exe {0} {1} -windowed -ResX=640 -ResY=480'.format(
+                    os.system('START "" powershell.exe {0} {1} -windowed'.format(
                         os.path.join(self.__airsim_path, 'AD_Cookbook_Start_AirSim.ps1'), self.__simulation_name))
                 print('Waiting a few seconds.')
                 time.sleep(10)
@@ -157,12 +158,13 @@ class AirSimCarConnector(CarConnector):
                 random_direction = (0,0,math.pi/2)
             else:
                 random_direction = (0,0,-1.0 * math.pi/2)
+        else:
+            random_direction = (0,0,0)
 
         # The z coordinate is always zero
         random_start_point[2] = -0
         
         # random_start_point = (random_line[1][0], random_line[1][1], 0)
-        random_direction = (0,0,-math.pi/8)
         print('Start point ' + json.dumps(random_start_point))
         return (random_start_point, random_direction)
 
@@ -179,12 +181,12 @@ class AirSimCarConnector(CarConnector):
 
         # Points in road_points.txt are in unreal coordinates
         # But car start coordinates are not the same as unreal coordinates
-        # for point_pair in self.__road_points:
-        #     for point in point_pair:
-        #         point[0] -= car_start_coords[0]
-        #         point[1] -= car_start_coords[1]
-        #         point[0] /= 100
-        #         point[1] /= 100
+        for point_pair in self.__road_points:
+            for point in point_pair:
+                point[0] -= car_start_coords[0]
+                point[1] -= car_start_coords[1]
+                point[0] /= 100
+                point[1] /= 100
 
     # Convert the current state to control signals to drive the car.
     # As we are only predicting steering angle, we will use a simple controller to keep the car at a constant speed

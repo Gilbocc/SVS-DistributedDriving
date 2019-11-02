@@ -1,10 +1,10 @@
 import abc
 import numpy as np
 
-class ConnectorException(Error):
+class ConnectorException(Exception):
    pass
 
-class Vector3(MsgpackMixin):
+class Vector3:
     x_val = np.float32(0)
     y_val = np.float32(0)
     z_val = np.float32(0)

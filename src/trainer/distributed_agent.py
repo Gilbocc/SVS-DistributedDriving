@@ -1,7 +1,7 @@
-from trainer.airsim_car_connector import AirSimCarConnector, ConnectorException
-from trainer.rl_model import RlModel
-from trainer.reward import Rewarder
-from trainer.utils import *
+from airsim_car_connector import AirSimCarConnector, ConnectorException
+from rl_model import RlModel
+from reward import Rewarder
+from utils import *
 import time
 import numpy as np
 import json
@@ -17,7 +17,7 @@ import json
 class DistributedAgent():
     def __init__(self, parameters):
         
-        required_parameters = ['data_dir', 'max_epoch_runtime_sec', 'replay_memory_size', 'batch_size', 'min_epsilon', 'per_iter_epsilon_reduction', 'experiment_name', 'train_conv_layers', 'airsim_path', 'airsim_simulation_name']
+        required_parameters = ['data_dir', 'max_epoch_runtime_sec', 'replay_memory_size', 'batch_size', 'min_epsilon', 'per_iter_epsilon_reduction', 'experiment_name', 'train_conv_layers', 'airsim_path', 'airsim_simulation_name', 'coordinator_address']
         for required_parameter in required_parameters:
             if required_parameter not in parameters:
                 raise ValueError('Missing required parameter {0}'.format(required_parameter))
@@ -36,7 +36,7 @@ class DistributedAgent():
         self.__num_batches_run = 0
         self.__experiences = {}
         
-        self.__possible_ip_addresses = ['192.168.1.4:7777']
+        self.__possible_ip_addresses = [parameters['coordinator_address']]
         self.__trainer_ip_address = None
             
         self.__model = RlModel(parameters['weights_path'] if 'weights_path' in parameters else None, self.__train_conv_layers)
@@ -52,7 +52,7 @@ class DistributedAgent():
     def __run_function(self):
         self.__ping_coordinator()
         self.__get_latest_model()
-        self.__connect_to_airsim()
+        self.__car_connector.connect()
         self.__fill_replay_memory()
         self.__get_latest_model()    
         while True:
@@ -147,7 +147,7 @@ class DistributedAgent():
         post_states = []
         rewards = []
         predicted_rewards = []
-        car_state = self.car_state()
+        # car_state = self.__car_connector.car_state()
 
         start_time = datetime.datetime.utcnow()
         end_time = start_time + datetime.timedelta(seconds=self.__max_epoch_runtime_sec)
@@ -174,13 +174,13 @@ class DistributedAgent():
                 next_state, predicted_reward = self.__model.predict_state(pre_state)
                 print('Model predicts {0}'.format(next_state))
 
-            self.execute_action(next_state)
+            self.__car_connector.execute_action(next_state)
             
             # Wait for a short period of time to see outcome
             time.sleep(wait_delta_sec)
             
             # Observe outcome and compute reward from action
-            state_buffer = self.__append_to_ring_buffer(self.__car_connector.__get_image(), state_buffer, state_buffer_len)
+            state_buffer = append_to_ring_buffer(self.__car_connector.get_image(), state_buffer, state_buffer_len)
             car_state = self.__car_connector.car_state()
             collision_info = self.__car_connector.has_collided()
             reward, far_off = self.__rewarder.compute_reward(collision_info, car_state)
