@@ -290,6 +290,9 @@ __pycache__/
 # Python notebook checkpoints
 .ipynb_checkpoints
 
+# Visual studio code files
+.vscode
+
 # Project Folders
 envs
 simulator
