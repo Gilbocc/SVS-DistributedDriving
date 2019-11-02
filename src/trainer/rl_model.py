@@ -136,11 +136,13 @@ class RlModel():
         actions = list(batches['actions'])
         is_not_terminal = np.array(batches['is_not_terminal'])
         
+        print('Array shape: {0}'.format(pre_states.shape))
+
         # For now, our model only takes a single image in as input. 
         # Only read in the last image from each set of examples
         pre_states = pre_states[:, 3, :, :, :]
         post_states = post_states[:, 3, :, :, :]
-        
+
         print('START GET GRADIENT UPDATE DEBUG')
         
         # We only have labels for the action that the agent actually took.

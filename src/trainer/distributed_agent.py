@@ -33,7 +33,6 @@ class DistributedAgent():
         self.__experiment_name = parameters['experiment_name']
         self.__train_conv_layers = bool((parameters['train_conv_layers'].lower().strip() == 'true'))
         self.__epsilon = 1
-        self.__num_batches_run = 0
         self.__experiences = {}
         
         self.__possible_ip_addresses = [parameters['coordinator_address']]
@@ -50,13 +49,22 @@ class DistributedAgent():
     # The function that will be run during training.
     # It will initialize the connection to the trainer, start AirSim, and continuously run training iterations.
     def __run_function(self):
+        def train():
+            try:
+                self.__experiences = {}
+                self.__fill_replay_memory()
+                self.__get_latest_model()    
+                while True:
+                    self.__train_model()
+            except:
+                print('Error during training - reinitialization')
+                return
+
         self.__ping_coordinator()
         self.__get_latest_model()
         self.__car_connector.connect()
-        self.__fill_replay_memory()
-        self.__get_latest_model()    
         while True:
-            self.__train_model()
+            train()
 
     # We have the IP address for the trainer. Attempt to ping the trainer.
     def __ping_coordinator(self):
@@ -85,7 +93,7 @@ class DistributedAgent():
             print('Running Airsim Epoch.')
             try:
                 self.__run_training_epoch(True)
-                percent_full = 100.0 * len(self.__experiences['actions'])/self.__replay_memory_size
+                percent_full = 100.0 * len(self.__experiences['actions']) / self.__replay_memory_size
                 print('Replay memory now contains {0} members. ({1}% full)'.format(len(self.__experiences['actions']), percent_full))
 
                 if (percent_full >= 100.0):
@@ -104,13 +112,10 @@ class DistributedAgent():
             # If we didn't immediately crash, train on the gathered experiences
             if (frame_count > 0):
                 print('Generating {0} minibatches...'.format(frame_count))
-
                 print('Sampling Experiences.')
                 # Sample experiences from the replay memory
                 sampled_experiences = self.__sample_experiences(experiences, frame_count, True)
 
-                self.__num_batches_run += frame_count
-                
                 # If we successfully sampled, train on the collected minibatches and send the gradients to the trainer node
                 if (len(sampled_experiences) > 0):
                     print('Publishing training epoch results...')
@@ -252,7 +257,7 @@ class DistributedAgent():
                 idx_set = set(np.random.choice(list(range(0, suprise_factor.shape[0], 1)), size=(self.__batch_size), replace=False))
             else:
                 idx_set = set(np.random.choice(list(range(0, suprise_factor.shape[0], 1)), size=(self.__batch_size), replace=False, p=suprise_factor))
-        
+
             sampled_experiences['pre_states'] += [experiences['pre_states'][i] for i in idx_set]
             sampled_experiences['post_states'] += [experiences['post_states'][i] for i in idx_set]
             sampled_experiences['actions'] += [experiences['actions'][i] for i in idx_set]
@@ -269,6 +274,8 @@ class DistributedAgent():
         # Train and get the gradients
         print('Publishing epoch data and getting latest model from parameter server...')
         gradients = self.__model.get_gradient_update_from_batches(batches)
+        if gradients is None:
+            return
         
         # Post the data to the trainer node
         post_data = {}

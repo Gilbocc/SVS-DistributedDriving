@@ -66,7 +66,7 @@ To start a node agent use the following command (parameters must be replaced)
 
 Example:
 
-    python .\distributed_agent.py data_dir='C:\\Users\\peppe_000\\Documents\\MyProjects\\SmartVehicularSystems\\DistributedRL\\data' role=agent max_epoch_runtime_sec=30 per_iter_epsilon_reduction=0.003 min_epsilon=0.1 batch_size=32 replay_memory_size=2000 experiment_name='experiment_refactored_1' weights_path='C:\\Users\\peppe_000\\Documents\\MyProjects\\SmartVehicularSystems\\DistributedRL\\data\\pretrain_model_weights.h5' train_conv_layers='false' airsim_path='D:\\AirSim\\AD_Cookbook_AirSim' airsim_simulation_name='neighborhood' coordinator_address='192.168.1.6:7777'
+    python .\distributed_agent.py data_dir='C:\\Users\\peppe_000\\Documents\\MyProjects\\SmartVehicularSystems\\DistributedRL\\data' role=agent max_epoch_runtime_sec=30 per_iter_epsilon_reduction=0.003 min_epsilon=0.1 batch_size=32 replay_memory_size=250 experiment_name='experiment_refactored_1' weights_path='C:\\Users\\peppe_000\\Documents\\MyProjects\\SmartVehicularSystems\\DistributedRL\\data\\pretrain_model_weights.h5' train_conv_layers='false' airsim_path='D:\\AirSim\\AD_Cookbook_AirSim' airsim_simulation_name='neighborhood' coordinator_address='192.168.1.6:7777'
 
 ## PARAMETERS
 

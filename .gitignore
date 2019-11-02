@@ -293,3 +293,5 @@ __pycache__/
 # Project Folders
 envs
 simulator
+data/checkpoint
+data/logs
