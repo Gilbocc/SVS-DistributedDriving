@@ -20,7 +20,7 @@ A reference implementation (utilized as a starting point for this work) is avail
 
 2 - Create the virtual environment
     
-    conda create --prefix=./envs python=3.7
+    conda create --prefix=./envs python=3.6
 
 3 - Activete the newly created environment
     
@@ -98,24 +98,3 @@ Example parameters:
     replay_memory_size = 2000
     weights_path = 'Z:\\data\\pretrain_model_weights.h5'
     train_conv_layers = 'false'
-
-## SINGLE NODE EXECUTION
-
-Start the agent
-
-    src\app\distributed_agent.py
-
-using the following parameters
-
-    batch_update_frequency=10
-    max_epoch_runtime_sec=30
-    per_iter_epsilon_reduction=0.003
-    min_epsilon=0.1
-    batch_size=32
-    replay_memory_size=50
-    weights_path=os.path.join(os.getcwd(), 'Share\\data\\pretrain_model_weights.h5')
-    train_conv_layers='false'
-    airsim_path='E:\\AD_Cookbook_AirSim\\'
-    data_dir=os.path.join(os.getcwd(), 'Share')
-    experiment_name='local_run'
-    local_run=true

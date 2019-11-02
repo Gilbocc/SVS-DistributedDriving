@@ -33,7 +33,7 @@ class AirSimCarConnector(CarConnector):
         while True:
             try:
                 print('Attempting to connect to AirSim (attempt {0})'.format(attempt_count))
-                self.__car_client = CarClient(ip="192.168.1.6")
+                self.__car_client = CarClient(ip="127.0.0.1")
                 self.__car_client.confirmConnection()
                 self.__car_client.enableApiControl(True)
                 self.__car_controls = CarControls()
