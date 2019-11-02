@@ -31,6 +31,7 @@ class DistributedAgent():
         self.__replay_memory_size = int(parameters['replay_memory_size'])
         self.__batch_size = int(parameters['batch_size'])
         self.__experiment_name = parameters['experiment_name']
+        self.__weights_path = parameters['weights_path'] if 'weights_path' in parameters else None
         self.__train_conv_layers = bool((parameters['train_conv_layers'].lower().strip() == 'true'))
         self.__epsilon = 1
         self.__experiences = {}
@@ -52,11 +53,13 @@ class DistributedAgent():
         def train():
             try:
                 self.__experiences = {}
+                self.__model = RlModel(self.__weights_path, self.__train_conv_layers)
                 self.__fill_replay_memory()
                 self.__get_latest_model()    
                 while True:
                     self.__train_model()
-            except:
+            except Exception as e:
+                print(e)
                 print('Error during training - reinitialization')
                 return
 
