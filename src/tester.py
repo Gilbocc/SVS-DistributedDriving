@@ -16,8 +16,8 @@ def __append_to_ring_buffer(item, buffer, buffer_size):
 
 # Helper function to connect to AirSim
 def __get_car_client():
-    print('Connecting to AirSim...')
-    car_client = CarClient(ip="192.168.1.6")
+    print('Attempting to connect to AirSim')
+    car_client = CarClient(ip="127.0.0.1")
     car_client.confirmConnection()
     car_client.enableApiControl(True)
     print('Connected!')
@@ -54,6 +54,14 @@ def __initialize_state_buffer(car_client, state_buffer, state_buffer_len):
         time.sleep(0.01)
         __append_to_ring_buffer(__get_image(car_client), state_buffer, state_buffer_len)
 
+# Convert the current state to control signals to drive the car.
+def __state_to_control_signals(state, car_state):
+    angle_values = [-1, -0.5, 0, 0.5, 1]
+    if car_state.speed > 9:
+        return (angle_values[state], 0, 1)
+    else:
+        return (angle_values[state], 1, 0)
+
 # Helper function to evaluate the given model sing the AirSim simulator
 def __start_evaluation(model_path, h5):
 
@@ -66,8 +74,8 @@ def __start_evaluation(model_path, h5):
     print('Running model')
     while(True):
         __append_to_ring_buffer(__get_image(car_client), state_buffer, state_buffer_len)
-        next_state, dummy = model.predict_state(state_buffer)
-        next_control_signal = model.state_to_control_signals(next_state, car_client.getCarState())
+        next_state, reward = model.predict_state(state_buffer)
+        next_control_signal = __state_to_control_signals(next_state, car_client.getCarState())
 
         car_controls = CarControls()
         car_controls.steering = next_control_signal[0]

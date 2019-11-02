@@ -98,3 +98,19 @@ Example parameters:
     replay_memory_size = 2000
     weights_path = 'Z:\\data\\pretrain_model_weights.h5'
     train_conv_layers = 'false'
+
+## Test Model
+
+To run the simulator using a given model use the following command:
+
+    python .\tester.py 'model_path' 'isH5file'
+
+**model_path**: the path from where the model will be loaded.
+
+**isH5file**: True/False. True if the model to load is an H5 file
+
+Example:
+
+    python .\tester.py 'C:\\Users\\peppe_000\\Documents\\MyProjects\\SmartVehicularSystems\\DistributedRL\\data\\checkpoint\\experiment_refactored_1\\3444.json' 'False'
+
+The simulator must be launched manually
