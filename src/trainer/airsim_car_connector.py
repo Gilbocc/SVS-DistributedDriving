@@ -32,21 +32,21 @@ class AirSimCarConnector(CarConnector):
         attempt_count = 0
         while True:
             try:
-                print('Attempting to connect to AirSim (attempt {0})'.format(attempt_count))
+                print('Attempting to connect to AirSim (attempt {0})'.format(attempt_count), flush=True)
                 self.__car_client = CarClient(ip="127.0.0.1")
                 self.__car_client.confirmConnection()
                 self.__car_client.enableApiControl(True)
                 self.__car_controls = CarControls()
-                print('Connected!')
+                print('Connected!', flush=True)
                 return
             except:
-                print('Failed to connect.')
+                print('Failed to connect.', flush=True)
                 attempt_count += 1
                 if (attempt_count % 10 == 0):
-                    print('10 consecutive failures to connect. Attempting to start AirSim on my own.')
+                    print('10 consecutive failures to connect. Attempting to start AirSim on my own.', flush=True)
                     os.system('START "" powershell.exe {0} {1} -windowed'.format(
                         os.path.join(self.__airsim_path, 'AD_Cookbook_Start_AirSim.ps1'), self.__simulation_name))
-                print('Waiting a few seconds.')
+                print('Waiting a few seconds.', flush=True)
                 time.sleep(10)
 
     # Prepare car state fo next iteration
@@ -55,24 +55,24 @@ class AirSimCarConnector(CarConnector):
             # Pick a random starting point on the roads
             starting_points, starting_direction = self.__get_starting_point()
 
-            print('Getting Pose')
+            print('Getting Pose', flush=True)
             self.__car_client.simSetPose(Pose(Vector3r(starting_points[0], starting_points[1], starting_points[2]), AirSimClientBase.toQuaternion(starting_direction[0], starting_direction[1], starting_direction[2])), True)
 
             # Currently, simSetPose does not allow us to set the velocity. 
             # So, if we crash and call simSetPose, the car will be still moving at its previous velocity.
             # We need the car to stop moving, so push the brake and wait for a few seconds.
-            print('Waiting for momentum to die')
+            print('Waiting for momentum to die', flush=True)
             self.__car_controls.steering = 0
             self.__car_controls.throttle = 0
             self.__car_controls.brake = 1
             self.__car_client.setCarControls(self.__car_controls)
             time.sleep(4)
             
-            print('Resetting')
+            print('Resetting', flush=True)
             self.__car_client.simSetPose(Pose(Vector3r(starting_points[0], starting_points[1], starting_points[2]), AirSimClientBase.toQuaternion(starting_direction[0], starting_direction[1], starting_direction[2])), True)
 
             #Start the car rolling so it doesn't get stuck
-            print('Running car for a few seconds...')
+            print('Running car for a few seconds...', flush=True)
             self.__car_controls.steering = 0
             self.__car_controls.throttle = 1
             self.__car_controls.brake = 0
@@ -165,7 +165,7 @@ class AirSimCarConnector(CarConnector):
         random_start_point[2] = -0
         
         # random_start_point = (random_line[1][0], random_line[1][1], 0)
-        print('Start point ' + json.dumps(random_start_point))
+        print('Start point ' + json.dumps(random_start_point), flush=True)
         return (random_start_point, random_direction)
 
     # Initializes the points used for determining the starting point of the vehicle

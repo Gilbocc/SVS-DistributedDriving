@@ -59,8 +59,8 @@ class DistributedAgent():
                 while True:
                     self.__train_model()
             except Exception as e:
-                print(e)
-                print('Error during training - reinitialization')
+                print(e, flush=True)
+                print('Error during training - reinitialization', flush=True)
                 return
 
         self.__ping_coordinator()
@@ -74,67 +74,67 @@ class DistributedAgent():
         ping_idx = -1
         while True:
             ping_idx += 1
-            print('Attempting to ping trainer...')
+            print('Attempting to ping trainer...', flush=True)
             try:
-                print('\tPinging {0}...'.format(self.__possible_ip_addresses[ping_idx % len(self.__possible_ip_addresses)]))
+                print('\tPinging {0}...'.format(self.__possible_ip_addresses[ping_idx % len(self.__possible_ip_addresses)]), flush=True)
                 response = requests.get('http://{0}/ping'.format(self.__possible_ip_addresses[ping_idx % len(self.__possible_ip_addresses)])).json()
                 if response['message'] != 'pong':
                     raise ValueError('Received unexpected message: {0}'.format(response))
-                print('Success!')
+                print('Success!', flush=True)
                 self.__trainer_ip_address = self.__possible_ip_addresses[ping_idx % len(self.__possible_ip_addresses)]
                 return
             except Exception as e:
-                print('Could not get response. Message is {0}'.format(e))
+                print('Could not get response. Message is {0}'.format(e), flush=True)
                 if (ping_idx % len(self.__possible_ip_addresses) == 0):
-                    print('Waiting 5 seconds and trying again...')
+                    print('Waiting 5 seconds and trying again...', flush=True)
                     time.sleep(5)
 
     # Fill the replay memory by driving randomly.
     def __fill_replay_memory(self):
-        print('Filling replay memory...')
+        print('Filling replay memory...', flush=True)
         while True:
-            print('Running Airsim Epoch.')
+            print('Running Airsim Epoch.', flush=True)
             try:
                 self.__run_training_epoch(True)
                 percent_full = 100.0 * len(self.__experiences['actions']) / self.__replay_memory_size
-                print('Replay memory now contains {0} members. ({1}% full)'.format(len(self.__experiences['actions']), percent_full))
+                print('Replay memory now contains {0} members. ({1}% full)'.format(len(self.__experiences['actions']), percent_full), flush=True)
 
                 if (percent_full >= 100.0):
                     return
             except ConnectorException:
-                print('Lost connection to car while fillling replay memory. Attempting to reconnect...')
+                print('Lost connection to car while fillling replay memory. Attempting to reconnect...', flush=True)
                 self.__car_connector.connect()
 
     # Training step
     def __train_model(self):
         try:
             #Generate a series of training examples by driving the vehicle in AirSim
-            print('Running Airsim Epoch.')
+            print('Running Airsim Epoch.', flush=True)
             experiences, frame_count = self.__run_training_epoch(False)
 
             # If we didn't immediately crash, train on the gathered experiences
             if (frame_count > 0):
-                print('Generating {0} minibatches...'.format(frame_count))
-                print('Sampling Experiences.')
+                print('Generating {0} minibatches...'.format(frame_count), flush=True)
+                print('Sampling Experiences.', flush=True)
                 # Sample experiences from the replay memory
                 sampled_experiences = self.__sample_experiences(experiences, frame_count, True)
 
                 # If we successfully sampled, train on the collected minibatches and send the gradients to the trainer node
                 if (len(sampled_experiences) > 0):
-                    print('Publishing training epoch results...')
+                    print('Publishing training epoch results...', flush=True)
                     self.__publish_batch_and_update_model(sampled_experiences, frame_count)
 
         # Occasionally, the AirSim exe will stop working.
         # For example, if a user connects to the node to visualize progress.
         # In that case, attempt to reconnect.
         except ConnectorException:
-            print('Lost connection to car while training. Attempting to reconnect...')
+            print('Lost connection to car while training. Attempting to reconnect...', flush=True)
             self.__car_connector.connect()
 
     # Runs an interation of data generation from AirSim.
     # Data will be saved in the replay memory.
     def __run_training_epoch(self, always_random):
-        print('Training epoch.')
+        print('Training epoch.', flush=True)
         self.__car_connector.reset_car()
 
         # Initialize the state buffer.
@@ -180,7 +180,7 @@ class DistributedAgent():
                 predicted_reward = 0
             else:
                 next_state, predicted_reward = self.__model.predict_state(pre_state)
-                print('Model predicts {0}'.format(next_state))
+                print('Model predicts {0}'.format(next_state), flush=True)
 
             self.__car_connector.execute_action(next_state)
             
@@ -202,7 +202,7 @@ class DistributedAgent():
 
         print('Start time: {0}, end time: {1}'.format(start_time, datetime.datetime.utcnow()), file=sys.stderr)
         if (datetime.datetime.utcnow() > end_time):
-            print('timed out.')
+            print('Timed out.')
             print('Full autonomous run finished at {0}'.format(datetime.datetime.utcnow()), file=sys.stderr)
         sys.stderr.flush()
 
@@ -218,8 +218,8 @@ class DistributedAgent():
         self.__add_to_replay_memory('predicted_rewards', predicted_rewards)
         self.__add_to_replay_memory('is_not_terminal', is_not_terminal)
 
-        print('Percent random actions: {0}'.format(num_random / max(1, len(actions))))
-        print('Num total actions: {0}'.format(len(actions)))
+        print('Percent random actions: {0}'.format(num_random / max(1, len(actions))), flush=True)
+        print('Num total actions: {0}'.format(len(actions)), flush=True)
         
         # If we are in the main loop, reduce the epsilon parameter so that the model will be called more often
         # Note: this will be overwritten by the trainer's epsilon if running in distributed mode
@@ -275,7 +275,7 @@ class DistributedAgent():
     # The trainer node will respond with the latest version of the model that will be used in further data generation iterations.
     def __publish_batch_and_update_model(self, batches, batches_count):
         # Train and get the gradients
-        print('Publishing epoch data and getting latest model from parameter server...')
+        print('Publishing epoch data and getting latest model from parameter server...', flush=True)
         gradients = self.__model.get_gradient_update_from_batches(batches)
         if gradients is None:
             return
@@ -286,8 +286,8 @@ class DistributedAgent():
         post_data['batch_count'] = batches_count
         
         response = requests.post('http://{0}/gradient_update'.format(self.__trainer_ip_address), json=post_data)
-        print('Response:')
-        print(response)
+        print('Response:', flush=True)
+        print(response, flush=True)
 
         new_model_parameters = response.json()
         
@@ -297,12 +297,12 @@ class DistributedAgent():
         #If the trainer sends us a epsilon, allow it to override our local value
         if ('epsilon' in new_model_parameters):
             new_epsilon = float(new_model_parameters['epsilon'])
-            print('Overriding local epsilon with {0}, which was sent from trainer'.format(new_epsilon))
+            print('Overriding local epsilon with {0}, which was sent from trainer'.format(new_epsilon), flush=True)
             self.__epsilon = new_epsilon
                 
     # Gets the latest model from the trainer node
     def __get_latest_model(self):
-        print('Getting latest model from parameter server...')
+        print('Getting latest model from parameter server...', flush=True)
         response = requests.get('http://{0}/latest'.format(self.__trainer_ip_address)).json()
         self.__model.from_packet(response)
 
@@ -312,7 +312,7 @@ parameters = {}
 for arg in sys.argv:
     if '=' in arg:
         args = arg.split('=')
-        print('0: {0}, 1: {1}'.format(args[0], args[1]))
+        print('0: {0}, 1: {1}'.format(args[0], args[1]), flush=True)
         parameters[args[0].replace('--', '')] = args[1]
 
 #Make the debug statements easier to read

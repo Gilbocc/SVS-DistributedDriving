@@ -10,8 +10,8 @@ def setup_logs():
         except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
-    # sys.stdout = open(os.path.join(output_dir, 'out.stdout.txt'), 'w')
-    # sys.stderr = open(os.path.join(output_dir, 'out.stderr.txt'), 'w')
+    sys.stdout = open(os.path.join(output_dir, 'out.stdout.txt'), 'w')
+    sys.stderr = open(os.path.join(output_dir, 'out.stderr.txt'), 'w')
 
 
 

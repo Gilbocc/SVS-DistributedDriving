@@ -1,4 +1,5 @@
 import os
+import sys
 
 # A helper function to make a directory if it does not exist
 def make_dir_if_not_exist(directory):
@@ -18,8 +19,8 @@ def setup_logs(data_dir, experiment_name):
         except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
-    # sys.stdout = open(os.path.join(output_dir, 'out.stdout.txt'), 'w')
-    # sys.stderr = open(os.path.join(output_dir, 'out.stderr.txt'), 'w')
+    sys.stdout = open(os.path.join(output_dir, 'out.stdout.txt'), 'w')
+    sys.stderr = open(os.path.join(output_dir, 'out.stderr.txt'), 'w')
 
 # Appends a sample to a ring buffer.
 # If the appended example takes the size of the buffer over buffer_size, the example at the front will be removed.

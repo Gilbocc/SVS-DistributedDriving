@@ -55,15 +55,15 @@ class RlModel():
         
         # If we are using pretrained weights for the conv layers, load them and verify the first layer.
         if (weights_path is not None and len(weights_path) > 0):
-            print('Loading weights from my_model_weights.h5...')
-            print('Current working dir is {0}'.format(os.getcwd()))
+            print('Loading weights from my_model_weights.h5...', flush=True)
+            print('Current working dir is {0}'.format(os.getcwd()), flush=True)
             self.__action_model.load_weights(weights_path, by_name=True)
             
-            print('First layer: ')
+            print('First layer: ', flush=True)
             w = np.array(self.__action_model.get_weights()[0])
-            print(w)
+            print(w, flush=True)
         else:
-            print('Not loading weights')
+            print('Not loading weights', flush=True)
 
         # Set up the target model. 
         # This is a trick that will allow the model to converge more rapidly.
@@ -105,22 +105,22 @@ class RlModel():
             if (len(action_weights) != len(gradients)):
                 raise ValueError('len of action_weights is {0}, but len gradients is {1}'.format(len(action_weights), len(gradients)))
             
-            print('UDPATE GRADIENT DEBUG START')
+            print('UDPATE GRADIENT DEBUG START', flush=True)
             
             dx = 0
             for i in range(0, len(action_weights), 1):
                 action_weights[i] += gradients[i]
                 dx += np.sum(np.sum(np.abs(gradients[i])))
-            print('Moved weights {0}'.format(dx))
+            print('Moved weights {0}'.format(dx), flush=True)
             self.__action_model.set_weights(action_weights)
             self.__action_context = tf.get_default_graph()
 
             if (should_update_critic):
                 with self.__target_context.as_default():
-                    print('Updating critic')
+                    print('Updating critic', flush=True)
                     self.__target_model.set_weights([np.array(w, copy=True) for w in action_weights])
             
-            print('UPDATE GRADIENT DEBUG END')
+            print('UPDATE GRADIENT DEBUG END', flush=True)
             
     def update_critic(self):
         with self.__target_context.as_default():
@@ -136,14 +136,14 @@ class RlModel():
         actions = list(batches['actions'])
         is_not_terminal = np.array(batches['is_not_terminal'])
         
-        print('Array shape: {0}'.format(pre_states.shape))
+        print('Array shape: {0}'.format(pre_states.shape), flush=True)
 
         # For now, our model only takes a single image in as input. 
         # Only read in the last image from each set of examples
         pre_states = pre_states[:, 3, :, :, :]
         post_states = post_states[:, 3, :, :, :]
 
-        print('START GET GRADIENT UPDATE DEBUG')
+        print('START GET GRADIENT UPDATE DEBUG', flush=True)
         
         # We only have labels for the action that the agent actually took.
         # To prevent the model from training the other actions, figure out what the model currently predicts for each input.
@@ -175,9 +175,9 @@ class RlModel():
             for i in range(0, len(original_weights), 1):
                 gradients.append(new_weights[i] - original_weights[i])
                 dx += np.sum(np.sum(np.abs(new_weights[i]-original_weights[i])))
-            print('Change in weights from training iteration: {0}'.format(dx))
+            print('Change in weights from training iteration: {0}'.format(dx), flush=True)
         
-        print('END GET GRADIENT UPDATE DEBUG')
+        print('END GET GRADIENT UPDATE DEBUG', flush=True)
 
         # Numpy arrays are not JSON serializable by default
         return [w.tolist() for w in gradients]
