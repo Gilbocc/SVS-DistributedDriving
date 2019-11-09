@@ -46,9 +46,9 @@ A reference implementation (utilized as a starting point for this work) is avail
 
 2 - Start the simulator
 
-    .\AD_Cookbook_Start_AirSim.ps1 neighborhood
+    .\AD_Cookbook_Start_AirSim.ps1 neighborhood -window
 
-## COORDINATOR
+## COORDINATOR NODE
 
 To start the coordinator agent use the following command (parameters must be replaced)
 
@@ -56,17 +56,17 @@ To start the coordinator agent use the following command (parameters must be rep
 
 Example:
 
-    python .\manage.py runserver 0.0.0.0:7777 data_dir='C:\\Users\\peppe_000\\Documents\\MyProjects\\SmartVehicularSystems\\DistributedRL\\data' role=trainer experiment_name='experiment_refactored_1' batch_update_frequency=200 weights_path='C:\\Users\\peppe_000\\Documents\\MyProjects\\SmartVehicularSystems\\DistributedRL\\data\\pretrain_model_weights.h5' train_conv_layers='false' per_iter_epsilon_reduction=0.003 min_epsilon=0.1
+    python .\manage.py runserver 0.0.0.0:7777 data_dir='C:\\Users\\peppe_000\\Documents\\MyProjects\\SmartVehicularSystems\\DistributedRL\\data' experiment_name='experiment_refactored_1' batch_update_frequency=200 weights_path='C:\\Users\\peppe_000\\Documents\\MyProjects\\SmartVehicularSystems\\DistributedRL\\data\\pretrain_model_weights.h5' train_conv_layers='false' per_iter_epsilon_reduction=0.003 min_epsilon=0.1
 
 ## WORKER NODE
 
 To start a node agent use the following command (parameters must be replaced)
 
-    python src\app\distributed_agent.py data_dir={-1} role=agent max_epoch_runtime_sec={0} per_iter_epsilon_reduction={1:f} min_epsilon={2:f} batch_size={3} replay_memory_size={4} experiment_name={5} weights_path={6} train_conv_layers={7} 
+    python src\app\distributed_agent.py data_dir={-1} max_epoch_runtime_sec={0} batch_size={3} replay_memory_size={4} experiment_name={5} weights_path={6} train_conv_layers={7} 
 
 Example:
 
-    python .\distributed_agent.py data_dir='C:\\Users\\peppe_000\\Documents\\MyProjects\\SmartVehicularSystems\\DistributedRL\\data' role=agent max_epoch_runtime_sec=30 per_iter_epsilon_reduction=0.003 min_epsilon=0.1 batch_size=32 replay_memory_size=250 experiment_name='experiment_refactored_parallel_1' weights_path='C:\\Users\\peppe_000\\Documents\\MyProjects\\SmartVehicularSystems\\DistributedRL\\data\\pretrain_model_weights.h5' train_conv_layers='false' airsim_path='D:\\AirSim\\AD_Cookbook_AirSim' airsim_simulation_name='neighborhood' coordinator_address='192.168.1.6:7777'
+    python .\distributed_agent.py data_dir='C:\\Users\\peppe_000\\Documents\\MyProjects\\SmartVehicularSystems\\DistributedRL\\data' max_epoch_runtime_sec=30 batch_size=32 replay_memory_size=1500 experiment_name='experiment_refactored_1' weights_path='C:\\Users\\peppe_000\\Documents\\MyProjects\\SmartVehicularSystems\\DistributedRL\\data\\pretrain_model_weights.h5' train_conv_layers='false' airsim_path='D:\\AirSim\\AD_Cookbook_AirSim' airsim_simulation_name='neighborhood' coordinator_address='192.168.1.6:7777'
 
 ## PARAMETERS
 
@@ -88,6 +88,8 @@ train_conv_layers: If we are using pretrained weights, we may prefer to freeze t
 
 **airsim_simulation_name**: Simulation scenario. The default AirSim deistribution contains the following configurations: 'city', 'landscape', 'neighborhood', 'coastline', 'hawaii'
 
+**coordinator_address**: The address of the master node in the form 'IP:PORT'
+
 Example parameters:
 
     batch_update_frequency = 300
@@ -99,7 +101,7 @@ Example parameters:
     weights_path = 'Z:\\data\\pretrain_model_weights.h5'
     train_conv_layers = 'false'
 
-## Test Model
+## TEST
 
 To run the simulator using a given model use the following command:
 

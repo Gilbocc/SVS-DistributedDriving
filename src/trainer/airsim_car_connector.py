@@ -56,7 +56,8 @@ class AirSimCarConnector(CarConnector):
             starting_points, starting_direction = self.__get_starting_point()
 
             print('Getting Pose', flush=True)
-            self.__car_client.simSetPose(Pose(Vector3r(starting_points[0], starting_points[1], starting_points[2]), AirSimClientBase.toQuaternion(starting_direction[0], starting_direction[1], starting_direction[2])), True)
+            # self.__car_client.simSetPose(Pose(Vector3r(starting_points[0], starting_points[1], starting_points[2]), AirSimClientBase.toQuaternion(starting_direction[0], starting_direction[1], starting_direction[2])), True)
+            self.__car_client.reset()
 
             # Currently, simSetPose does not allow us to set the velocity. 
             # So, if we crash and call simSetPose, the car will be still moving at its previous velocity.
@@ -69,7 +70,8 @@ class AirSimCarConnector(CarConnector):
             time.sleep(4)
             
             print('Resetting', flush=True)
-            self.__car_client.simSetPose(Pose(Vector3r(starting_points[0], starting_points[1], starting_points[2]), AirSimClientBase.toQuaternion(starting_direction[0], starting_direction[1], starting_direction[2])), True)
+            # self.__car_client.simSetPose(Pose(Vector3r(starting_points[0], starting_points[1], starting_points[2]), AirSimClientBase.toQuaternion(starting_direction[0], starting_direction[1], starting_direction[2])), True)
+            self.__car_client.reset()
 
             #Start the car rolling so it doesn't get stuck
             print('Running car for a few seconds...', flush=True)

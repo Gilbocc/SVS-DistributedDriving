@@ -82,8 +82,8 @@ def __start_evaluation(model_path, h5):
         car_controls.throttle = next_control_signal[1]
         car_controls.brake = next_control_signal[2]
 
-        print('State = {0}, steering = {1}, throttle = {2}, brake = {3}'.format(
-            next_state, car_controls.steering, car_controls.throttle, car_controls.brake))
+        print('State = {0}, steering = {1}, throttle = {2}, brake = {3}, Reward = {4}'.format(
+            next_state, car_controls.steering, car_controls.throttle, car_controls.brake, reward))
 
         car_client.setCarControls(car_controls)
         time.sleep(0.1)

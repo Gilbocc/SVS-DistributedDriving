@@ -1,6 +1,7 @@
 from airsim_car_connector import AirSimCarConnector, ConnectorException
 from rl_model import RlModel
 from reward import Rewarder
+from reward_collision import CollisionRewarder
 from utils import *
 import time
 import numpy as np
@@ -17,7 +18,7 @@ import json
 class DistributedAgent():
     def __init__(self, parameters):
         
-        required_parameters = ['data_dir', 'max_epoch_runtime_sec', 'replay_memory_size', 'batch_size', 'min_epsilon', 'per_iter_epsilon_reduction', 'experiment_name', 'train_conv_layers', 'airsim_path', 'airsim_simulation_name', 'coordinator_address']
+        required_parameters = ['data_dir', 'max_epoch_runtime_sec', 'replay_memory_size', 'batch_size', 'experiment_name', 'train_conv_layers', 'airsim_path', 'airsim_simulation_name', 'coordinator_address']
         for required_parameter in required_parameters:
             if required_parameter not in parameters:
                 raise ValueError('Missing required parameter {0}'.format(required_parameter))
@@ -26,8 +27,6 @@ class DistributedAgent():
 
         self.__data_dir = parameters['data_dir']
         self.__max_epoch_runtime_sec = float(parameters['max_epoch_runtime_sec'])
-        self.__per_iter_epsilon_reduction = float(parameters['per_iter_epsilon_reduction'])
-        self.__min_epsilon = float(parameters['min_epsilon'])
         self.__replay_memory_size = int(parameters['replay_memory_size'])
         self.__batch_size = int(parameters['batch_size'])
         self.__experiment_name = parameters['experiment_name']
@@ -41,7 +40,7 @@ class DistributedAgent():
             
         self.__model = RlModel(parameters['weights_path'] if 'weights_path' in parameters else None, self.__train_conv_layers)
         self.__car_connector = AirSimCarConnector(parameters['airsim_path'], parameters['airsim_simulation_name'], self.__data_dir)
-        self.__rewarder = Rewarder(self.__data_dir)
+        self.__rewarder = CollisionRewarder(self.__data_dir)
 
     # Starts the agent
     def start(self):
@@ -192,6 +191,8 @@ class DistributedAgent():
             car_state = self.__car_connector.car_state()
             collision_info = self.__car_connector.has_collided()
             reward, far_off = self.__rewarder.compute_reward(collision_info, car_state)
+
+            print('Actual reward: {0} - Predicted : {1}'.format(reward, predicted_reward))
             
             # Add the experience to the set of examples from this iteration
             pre_states.append(pre_state)
@@ -199,6 +200,9 @@ class DistributedAgent():
             rewards.append(reward)
             predicted_rewards.append(predicted_reward)
             actions.append(next_state)
+
+        if (datetime.datetime.utcnow() < end_time):
+            rewards = self.__rewarder.discount_rewards(rewards)
 
         print('Start time: {0}, end time: {1}'.format(start_time, datetime.datetime.utcnow()), file=sys.stderr)
         if (datetime.datetime.utcnow() > end_time):
@@ -220,12 +224,6 @@ class DistributedAgent():
 
         print('Percent random actions: {0}'.format(num_random / max(1, len(actions))), flush=True)
         print('Num total actions: {0}'.format(len(actions)), flush=True)
-        
-        # If we are in the main loop, reduce the epsilon parameter so that the model will be called more often
-        # Note: this will be overwritten by the trainer's epsilon if running in distributed mode
-        if not always_random:
-            self.__epsilon -= self.__per_iter_epsilon_reduction
-            self.__epsilon = max(self.__epsilon, self.__min_epsilon)
         
         return self.__experiences, len(actions)
     
