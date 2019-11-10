@@ -21,9 +21,14 @@ class CollisionRewarder:
         return 1.0, False
 
     def discount_rewards(self, rewards):
-        i = 4
-        for x in range(2, 6):
+        # i = 4
+        # for x in range(2, 6):
+        #     if len(rewards) - x >= 0:
+        #         rewards[len(rewards) - x] = rewards[len(rewards) - x] - (0.2 * i)
+        #         print('Modified reward {0}: {1}'.format(len(rewards) - x, rewards[len(rewards) - x]))
+        #         i = i - 1
+        for x in range(2, 14):
             if len(rewards) - x >= 0:
-                rewards[len(rewards) - x] = rewards[len(rewards) - x] - (0.2 * i)
+                rewards[len(rewards) - x] = 0.0
                 print('Modified reward {0}: {1}'.format(len(rewards) - x, rewards[len(rewards) - x]))
-                i = i - 1
+        return rewards

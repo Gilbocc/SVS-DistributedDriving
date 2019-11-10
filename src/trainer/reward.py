@@ -45,6 +45,7 @@ class Rewarder:
 
     def discount_rewards(self, rewards):
         print('No discount configured')
+        return rewards
 
     # Initializes the points used for determining the optimal position of the vehicle during the reward function
     def __init_reward_points(self):
