@@ -52,7 +52,7 @@ A reference implementation (utilized as a starting point for this work) is avail
 
 To start the coordinator agent use the following command (parameters must be replaced)
 
-    python src\manage.py runserver 0.0.0.0:80 data_dir={-1} role=trainer experiment_name={0} batch_update_frequency={1} weights_path={2} train_conv_layers={3} per_iter_epsilon_reduction={4} min_epsilon={5}
+    python src\manage.py runserver ip:port data_dir={0} experiment_name={1} batch_update_frequency={2} weights_path={3} train_conv_layers={4} per_iter_epsilon_reduction={5} min_epsilon={6}
 
 Example:
 
@@ -62,7 +62,7 @@ Example:
 
 To start a node agent use the following command (parameters must be replaced)
 
-    python src\app\distributed_agent.py data_dir={-1} max_epoch_runtime_sec={0} batch_size={3} replay_memory_size={4} experiment_name={5} weights_path={6} train_conv_layers={7} 
+    python src\app\distributed_agent.py data_dir={0} max_epoch_runtime_sec={1} batch_size={2} replay_memory_size={3} experiment_name={4} weights_path={5} train_conv_layers={6} 
 
 Example:
 
@@ -82,7 +82,8 @@ batch_size: The minibatch size to use for training.
 **replay_memory_size**: The number of examples to keep in the replay memory. The replay memory is a FIFO buffer used to reduce the effects of nearby states being correlated. Minibatches are generated from randomly selecting examples from the replay memory.
 
 **weights_path**: If we are doing transfer learning and using pretrained weights for the model, they will be loaded from this path.
-train_conv_layers: If we are using pretrained weights, we may prefer to freeze the convolutional layers to speed up training.
+
+**train_conv_layers**: If we are using pretrained weights, we may prefer to freeze the convolutional layers to speed up training.
 
 **airsim_path**: Location of the AirSim executable (AD_Cookbook_Start_AirSim.ps1)
 
@@ -94,12 +95,15 @@ Example parameters:
 
     batch_update_frequency = 300
     max_epoch_runtime_sec = 30
-    per_iter_epsilon_reduction=0.003
+    per_iter_epsilon_reduction = 0.003
     min_epsilon = 0.1
     batch_size = 32
     replay_memory_size = 2000
     weights_path = 'Z:\\data\\pretrain_model_weights.h5'
     train_conv_layers = 'false'
+    airsim_path = 'Z:\\AirSim'
+    airsim_simulation_name = 'neighborhood'
+    coordinator_address = '192.169.1.5:7777'
 
 ## TEST
 
